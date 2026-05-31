@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Você ❤️</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           RESET E VARIÁVEIS GERAIS
+        ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-color: #ffe6eb;
+            --accent-pink: #ff3366;
+            --dark-pink: #990033;
+            --text-dark: #4a1525;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg-color);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+        }
+
+        /* Container do App Mobile */
+        .app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 450px;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 100%);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* Fundo de Corações Flutuantes (Balões) */
+        #floating-hearts-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            color: rgba(255, 51, 102, 0.4);
+            animation: floatUp linear infinite;
+            filter: drop-shadow(0 4px 6px rgba(255, 51, 102, 0.2));
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1.3) rotate(25deg); opacity: 0; }
+        }
+
+        /* Telas */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        /* =========================================
+           TELA 1: CORAÇÃO 3D PARTIDO
+        ========================================= */
+        .heart-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 40px;
+            z-index: 5;
+            overflow: visible; 
+        }
+
+        svg {
+            overflow: visible;
+        }
+
+        .heart-half {
+            fill: url(#heartGradient3D); 
+            filter: drop-shadow(5px 15px 15px rgba(153, 0, 51, 0.5)) drop-shadow(-3px -3px 8px rgba(255,255,255,0.8));
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 1s ease;
+        }
+
+        .heart-wrapper.glow .heart-half {
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 60px var(--accent-pink));
+        }
+
+        .btn-heal {
+            background: linear-gradient(135deg, var(--accent-pink), #ff1a53);
+            color: #fff;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.15rem;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Quicksand', sans-serif;
+            z-index: 10;
+        }
+
+        .btn-heal:active {
+            transform: scale(0.92);
+            box-shadow: 0 4px 10px rgba(255, 51, 102, 0.3);
+        }
+
+        /* =========================================
+           TELA 2: FOTO GIRATÓRIA E MENSAGEM
+        ========================================= */
+        #screen-2 {
+            justify-content: flex-start;
+            padding-top: 60px;
+        }
+
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: var(--accent-pink);
+            text-shadow: 2px 2px 0px #fff;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* O Disco de Foto (100% Imagem) */
+        .photo-disc {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            flex-shrink: 0; 
+            border-radius: 50%;
+            box-shadow: 0 15px 35px rgba(255, 51, 102, 0.25), 0 0 0 6px rgba(255, 255, 255, 0.9);
+            background-color: #fff;
+            animation: spin 15s linear infinite; 
+            animation-play-state: paused; 
+            margin-bottom: 40px;
+            overflow: hidden; 
+            z-index: 2;
+        }
+
+        .photo-disc.playing {
+            animation-play-state: running; 
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .disc-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block;
+        }
+
+        /* Player Minimalista */
+        .music-player {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 35px;
+            border: 1px solid rgba(255, 255, 255, 1);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-play {
+            background: var(--accent-pink);
+            color: #fff;
+            border: none;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
+            transition: transform 0.2s;
+            padding-left: 5px; 
+        }
+
+        .btn-play.playing-icon {
+            padding-left: 0; 
+        }
+
+        .btn-play:active {
+            transform: scale(0.9);
+        }
+
+        .track-info {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+        }
+
+        /* Mensagem */
+        .card-message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 25px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px dashed #ff99b3;
+            position: relative;
+        }
+
+        .card-message p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .sender {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="floating-hearts-bg"></div>
+
+        <div id="screen-1" class="screen active">
+            
+            <div class="heart-wrapper" id="heart-wrapper">
+                <svg viewBox="-50 -50 200 200" width="100%" height="100%">
+                    
+                    <defs>
+                        <radialGradient id="heartGradient3D" cx="30" cy="20" r="80" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#ff99bb"/>   
+                            <stop offset="40%" stop-color="#ff1a53"/>  
+                            <stop offset="100%" stop-color="#800020"/> 
+                        </radialGradient>
+                    </defs>
+
+                    <path id="heart-left" class="heart-half" 
+                          d="M 50 25 C 35 0 0 5 0 40 C 0 65 25 80 50 95 L 47 80 L 53 65 L 47 50 L 53 35 Z" />
+                          
+                    <path id="heart-right" class="heart-half" 
+                          d="M 50 25 C 65 0 100 5 100 40 C 100 65 75 80 50 95 L 47 80 L 53 65 L 47 50 L 53 35 Z" />
+                </svg>
+            </div>
+
+            <button class="btn-heal" id="btn-heal">Consertar coração (0/5)</button>
+        </div>
+
+
+        <div id="screen-2" class="screen hidden">
+            
+            <h1 class="title">Te Amo</h1>
+
+            <div class="photo-disc" id="photo-disc">
+                <img src="nossafoto.jpeg" alt="Nossa Foto" class="disc-image">
+            </div>
+
+            <div class="music-player">
+                <button class="btn-play" id="btn-play">▶</button>
+                <span class="track-info">Nossa Música Especial</span>
+            </div>
+
+            <audio id="bg-music" loop>
+                <source src="nossamusica.mpeg" type="audio/mpeg">
+            </audio>
+
+            <div class="card-message">
+                <p>
+                    Colei cada pedacinho do meu coração para te entregar por inteiro. <br>
+                    Você é a minha melhor melodia. 💖
+                </p>
+                <div class="sender">Com amor, [Seu Nome]</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        /* --- Animação de Fundo (Balões de Coração) --- */
+        const bgContainer = document.getElementById('floating-hearts-bg');
+        const heartSymbols = ['❤️', '💖', '💕', '💗'];
+        
+        for (let i = 0; i < 25; i++) {
+            let heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+            heart.style.left = `${Math.random() * 100}%`;
+            heart.style.animationDuration = `${6 + Math.random() * 8}s`;
+            heart.style.animationDelay = `${Math.random() * 5}s`;
+            heart.style.fontSize = `${15 + Math.random() * 25}px`;
+            bgContainer.appendChild(heart);
+        }
+
+        /* --- Lógica dos 5 Cliques para Curar o Coração --- */
+        let clicks = 0;
+        const maxClicks = 5;
+        
+        const btnHeal = document.getElementById('btn-heal');
+        const heartLeft = document.getElementById('heart-left');
+        const heartRight = document.getElementById('heart-right');
+        const heartWrapper = document.getElementById('heart-wrapper');
+        
+        const startState = {
+            left: { x: -35, y: -15, rot: -15 },
+            right: { x: 35, y: 15, rot: 15 }
+        };
+
+        function updateHeartPosition() {
+            const progress = clicks / maxClicks;
+            const ease = 1 - progress; 
+
+            const lX = startState.left.x * ease;
+            const lY = startState.left.y * ease;
+            const lRot = startState.left.rot * ease;
+
+            const rX = startState.right.x * ease;
+            const rY = startState.right.y * ease;
+            const rRot = startState.right.rot * ease;
+
+            heartLeft.style.transform = `translate(${lX}px, ${lY}px) rotate(${lRot}deg)`;
+            heartRight.style.transform = `translate(${rX}px, ${rY}px) rotate(${rRot}deg)`;
+        }
+
+        updateHeartPosition();
+
+        btnHeal.addEventListener('click', () => {
+            if (clicks < maxClicks) {
+                clicks++;
+                updateHeartPosition();
+                
+                if (clicks < maxClicks) {
+                    btnHeal.textContent = `Consertando... (${clicks}/${maxClicks})`;
+                } else {
+                    btnHeal.textContent = "Coração curado! ❤️";
+                    btnHeal.style.pointerEvents = 'none';
+                    btnHeal.style.opacity = '0';
+                    
+                    heartWrapper.classList.add('glow');
+
+                    setTimeout(() => {
+                        document.getElementById('screen-1').classList.remove('active');
+                        document.getElementById('screen-1').classList.add('hidden');
+                        
+                        document.getElementById('screen-2').classList.remove('hidden');
+                        document.getElementById('screen-2').classList.add('active');
+                    }, 1500);
+                }
+            }
+        });
+
+        /* --- Lógica de Áudio e Disco Giratório --- */
+        const btnPlay = document.getElementById('btn-play');
+        const photoDisc = document.getElementById('photo-disc');
+        const audio = document.getElementById('bg-music');
+        let isPlaying = false;
+
+        btnPlay.addEventListener('click', () => {
+            if (isPlaying) {
+                // Remove a animação do disco IMEDIATAMENTE e muda o ícone para Play
+                photoDisc.classList.remove('playing');
+                btnPlay.textContent = '▶';
+                btnPlay.classList.remove('playing-icon');
+                
+                // Tenta pausar o áudio
+                try { audio.pause(); } catch(e) {}
+                
+            } else {
+                // Adiciona a animação do disco IMEDIATAMENTE e muda o ícone para Pause
+                photoDisc.classList.add('playing');
+                btnPlay.textContent = '⏸';
+                btnPlay.classList.add('playing-icon');
+                
+                // Tenta tocar o áudio em segundo plano (ignora erros caso o arquivo não exista)
+                audio.play().catch(err => {
+                    console.log("Nenhum áudio encontrado, mas a animação continuará.");
+                });
+            }
+            isPlaying = !isPlaying;
+        });
+    </script>
+</body>
+</html>
