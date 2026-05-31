@@ -23,9 +23,11 @@
             --accent-pink: #ff3366;
             --dark-pink: #990033;
             --text-dark: #4a1525;
-            --envelope-bg: #fca3b5;
-            --envelope-inside: #ffa4b6;
-            --envelope-pocket: #ffccd5;
+            
+            /* Cores do Envelope Realista */
+            --env-bg-inside: #ff2a5f;     /* Forro interno vermelho/rosa vibrante */
+            --env-outside-color: #ffb3c6; /* Cor externa da carta (Rosinha) */
+            --msg-paper-color: #ffffff;   /* Cor da folha de mensagem (Branca) */
         }
 
         body {
@@ -120,7 +122,7 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(255, 51, 102, 0.3);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s;
             z-index: 10;
         }
         .btn-heal:active { transform: scale(0.92); }
@@ -128,14 +130,17 @@
         /* =========================================
            TELA 2: DISCO E SEU PLAYER
         ========================================= */
-        #screen-2 { justify-content: flex-start; padding-top: 60px; }
+        #screen-2 { justify-content: flex-start; padding-top: 50px; }
 
         .title {
             font-family: 'Dancing Script', cursive;
-            font-size: 3.5rem;
+            font-size: 2.8rem; /* Ajustado para o título maior caber melhor */
+            line-height: 1.1;
+            text-align: center;
             color: var(--accent-pink);
             text-shadow: 2px 2px 0px #fff;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
+            padding: 0 10px;
         }
 
         .photo-disc-container {
@@ -143,6 +148,9 @@
             width: 220px;
             height: 220px;
             margin-bottom: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .photo-disc {
@@ -155,35 +163,31 @@
             animation-play-state: paused; 
             overflow: hidden; 
             z-index: 2;
-            position: relative;
         }
 
         .photo-disc.playing { animation-play-state: running; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .disc-image { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); }
 
-        /* NOTAS MUSICAIS MAIORES (ESTILO BALÃO SAINDO DO DISCO) */
+        /* NOTAS MUSICAIS */
         .music-note {
             position: absolute;
+            top: 50%; 
+            left: 50%;
             color: var(--accent-pink);
-            font-size: 34px; /* Maior e mais bonita */
+            font-size: 38px; 
             pointer-events: none;
-            z-index: 6;
+            z-index: 1; 
             user-select: none;
-            filter: drop-shadow(0 2px 8px rgba(255, 51, 102, 0.4));
-            animation: floatMusicBalloon 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            filter: drop-shadow(0 2px 5px rgba(255, 51, 102, 0.5));
+            animation: floatMusicBalloon 2.5s ease-out forwards;
         }
 
         @keyframes floatMusicBalloon {
-            0% {
-                transform: translate(-50%, -50%) translateY(0) translateX(0) scale(0.4);
-                opacity: 0;
-            }
-            15% { opacity: 1; }
-            100% {
-                transform: translate(-50%, -50%) translateY(-350px) translateX(var(--sway)) scale(1.3) rotate(var(--rot));
-                opacity: 0;
-            }
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--sway)), -280px) scale(1.2) rotate(var(--rot)); opacity: 0; }
         }
 
         .music-player {
@@ -194,7 +198,7 @@
             padding: 10px 25px;
             border-radius: 30px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 45px;
+            margin-bottom: 40px;
             border: 1px solid rgba(255, 255, 255, 1);
             backdrop-filter: blur(5px);
         }
@@ -229,12 +233,12 @@
         .btn-open-letter:active { transform: scale(0.95); background: var(--accent-pink); color: #fff; }
 
         /* =========================================
-           MODAL E ENVELOPE (RECONSTRUÇÃO ANTIBUG)
+           MODAL E ENVELOPE 
         ========================================= */
         .letter-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(45, 10, 20, 0.65);
+            background: rgba(45, 10, 20, 0.7);
             backdrop-filter: blur(8px);
             z-index: 100;
             display: flex;
@@ -246,171 +250,171 @@
         }
         .letter-modal.active { opacity: 1; pointer-events: auto; }
 
-        /* Movimentação sutil do envelope inteiro para compensar o papel */
-        .envelope-wrapper-box {
+        .envelope-wrapper {
             position: relative;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 320px;
+            height: 210px;
+            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .envelope-wrapper-box.shift-down {
-            transform: translateY(110px); /* Desce o envelope suavemente para abrir espaço em cima */
+        /* Desloca a base do envelope um pouco para baixo ao abrir */
+        .envelope-wrapper.shift-down {
+            transform: translateY(110px);
         }
 
         .envelope-container {
             position: relative;
-            width: 310px;
-            height: 200px;
-            background-color: var(--envelope-inside);
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            width: 100%;
+            height: 100%;
         }
 
-        /* ABA SUPERIOR DO ENVELOPE (Design Perfeito em Triângulo) */
-        .envelope-flap {
+        /* CAMADA 1: Fundo interno do envelope (Vermelho escuro) */
+        .envelope-back {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--envelope-bg);
-            clip-path: polygon(0 0, 100% 0, 50% 55%);
-            transform-origin: top;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 4;
-            border-radius: 12px 12px 0 0;
-            filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1));
+            background-color: var(--env-bg-inside);
+            border-radius: 4px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            z-index: 1;
         }
 
-        /* BOLSO FRONTAL (Design que esconde e abraça o papel) */
-        .envelope-pocket {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--envelope-pocket);
-            clip-path: polygon(0 40%, 50% 68%, 100% 40%, 100% 100%, 0 100%);
-            z-index: 3;
-            border-radius: 0 0 12px 12px;
-        }
-
-        /* Selo de Coração */
-        .heart-seal {
-            position: absolute;
-            top: 110px; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 34px;
-            z-index: 4;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .envelope-container:hover .heart-seal { transform: translate(-50%, -50%) scale(1.15); }
-
-        /* O PAPEL DA CARTA (Corrigido: Totalmente oculto no início) */
+        /* CAMADA 2: O Papel Físico (Branco) */
         .envelope-paper {
             position: absolute;
-            bottom: 10px; left: 10px;
-            width: 290px;
-            height: 180px;
-            background: #fffbfd;
-            border-radius: 12px;
-            z-index: 2;
+            bottom: 5px; left: 12px;
+            width: 296px;
+            height: 195px; 
+            background: var(--msg-paper-color);
+            border-radius: 8px;
             padding: 25px 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
-            opacity: 0; /* Inicia invisível para não dar bugs visuais */
-            transform: scale(0.95) translateY(0);
+            z-index: 2; 
             
             border: 2px dashed rgba(255, 51, 102, 0.25);
-            outline: 6px solid #fffbfd;
-            outline-offset: -8px;
+            background-clip: padding-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 
-            transition: 
-                transform 0.7s cubic-bezier(0.34, 1.3, 0.64, 1), 
-                height 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
-                width 0.6s cubic-bezier(0.25, 1, 0.5, 1),
-                left 0.6s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.3s ease;
+            transition: transform 0.65s cubic-bezier(0.34, 1.1, 0.64, 1), height 0.65s ease;
         }
 
-        /* Mini corações decorativos fixos nos cantos do papel */
         .envelope-paper::before, .envelope-paper::after {
             content: '♥';
             position: absolute;
-            font-size: 11px;
+            font-size: 13px;
             color: rgba(255, 51, 102, 0.3);
         }
-        .envelope-paper::before { top: 12px; left: 12px; }
-        .envelope-paper::after { bottom: 12px; right: 12px; }
+        .envelope-paper::before { top: 10px; left: 10px; }
+        .envelope-paper::after { bottom: 10px; right: 10px; }
 
-        /* Caixa de Texto com Rolagem de Segurança Interna */
+        /* Conteúdo textual da carta (100% invisível até abrir) */
         .letter-content-box {
             opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            visibility: hidden; 
+            transform: translateY(10px);
+            transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s 0.35s;
             text-align: center;
             width: 100%;
-            max-height: 250px;
-            overflow-y: auto;
-            padding-right: 4px;
         }
 
         .letter-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
+            font-size: 1.02rem;
+            line-height: 1.5;
             font-weight: 600;
             color: #400d1a;
+            margin-bottom: 20px;
         }
 
         .letter-sender {
             font-family: 'Dancing Script', cursive;
-            font-size: 1.9rem;
+            font-size: 1.8rem;
             color: var(--accent-pink);
-            margin-top: 15px;
+            margin-bottom: 20px;
         }
 
         .btn-close-letter {
-            margin-top: auto;
             background: linear-gradient(135deg, var(--accent-pink), #ff1a53);
             color: #fff;
             border: none;
-            padding: 10px 26px;
-            font-size: 0.95rem;
+            padding: 9px 22px;
+            font-size: 0.9rem;
             border-radius: 25px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.2);
+            box-shadow: 0 4px 12px rgba(255, 51, 102, 0.25);
             opacity: 0;
-            transition: opacity 0.3s ease;
-            margin-bottom: 5px;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
         }
+
+        /* CAMADA 3: Bolso frontal externo (Envelope Rosinha) */
+        .envelope-front {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--env-outside-color);
+            clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+            z-index: 3;
+            border-radius: 4px;
+            pointer-events: none; 
+        }
+
+        /* CAMADA 4: Aba superior de fechamento (Envelope Rosinha) */
+        .envelope-flap {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--env-outside-color);
+            clip-path: polygon(0 0, 100% 0, 50% 60%);
+            transform-origin: top;
+            transition: transform 0.5s ease, z-index 0s;
+            z-index: 4; 
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Lacre de Coração */
+        .heart-seal {
+            position: absolute;
+            top: 110px; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            z-index: 5;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            user-select: none;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+        }
+        .envelope-container:hover .heart-seal { transform: translate(-50%, -50%) scale(1.12); }
+
 
         /* -----------------------------------------
-           TIMELINE CORRETA DE ANIMAÇÃO 
+           GATILHOS DA ANIMAÇÃO (IDA E VOLTA)
         ----------------------------------------- */
         
-        /* Passo 1: Aba abre para cima */
-        .envelope-container.flap-open .envelope-flap {
+        /* Passo 1: Levantar a aba superior */
+        .envelope-wrapper.flap-open .envelope-flap {
             transform: rotateX(180deg);
-            z-index: 1; /* Vai para trás do papel */
+            z-index: 0; 
         }
-        .envelope-container.flap-open .heart-seal {
+        .envelope-wrapper.flap-open .heart-seal {
             opacity: 0;
-            transform: translate(-50%, -150%) scale(0);
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
         }
 
-        /* Passo 2: Papel sai do bolso e ganha tamanho majestoso e centralizado */
-        .envelope-container.paper-open .envelope-paper {
-            opacity: 1;
-            transform: translateY(-260px) scale(1);
-            height: 390px;
-            width: 330px;
-            left: -10px;
-            z-index: 5; /* Sobressai diante do bolso */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            padding-top: 35px;
+        /* Passo 2: O papel desliza de dentro do bolso para cima */
+        .envelope-wrapper.paper-open .envelope-paper {
+            transform: translateY(-205px); 
+            height: 335px; 
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.12);
         }
 
-        .envelope-container.paper-open .letter-content-box,
-        .envelope-container.paper-open .btn-close-letter {
+        /* Mostra os textos apenas quando o papel subir */
+        .envelope-wrapper.paper-open .letter-content-box,
+        .envelope-wrapper.paper-open .btn-close-letter {
             opacity: 1;
+            visibility: visible;
             transform: translateY(0);
-            transition-delay: 0.35s;
+            transition-delay: 0.3s;
+            transition: opacity 0.35s ease 0.3s, transform 0.35s ease 0.3s, visibility 0s 0s;
         }
     </style>
 </head>
@@ -434,15 +438,15 @@
                     <path id="heart-right" class="heart-half" d="M 50 25 C 65 0 100 5 100 40 C 100 65 75 80 50 95 L 47 80 L 53 65 L 47 50 L 53 35 Z" />
                 </svg>
             </div>
-            <button class="btn-heal" id="btn-heal">Consertar coração (0/5)</button>
+            <button class="btn-heal" id="btn-heal">Junte as metades!💔</button>
         </div>
 
         <div id="screen-2" class="screen hidden">
-            <h1 class="title">Te Amo</h1>
+            <h1 class="title">Feliz dia dos Namorados!💕</h1>
 
             <div class="photo-disc-container" id="photo-disc-container">
                 <div class="photo-disc" id="photo-disc">
-                    <img src="nossafoto.jpg" alt="Nossa Foto" class="disc-image">
+                    <img src="nossafoto.jpeg" alt="Nossa Foto" class="disc-image">
                 </div>
             </div>
 
@@ -459,10 +463,10 @@
         </div>
 
         <div class="letter-modal" id="letter-modal">
-            <div class="envelope-wrapper-box" id="envelope-wrapper-box">
+            <div class="envelope-wrapper" id="envelope-wrapper">
                 <div class="envelope-container" id="envelope">
-                    <div class="envelope-flap"></div>
-                    <div class="heart-seal" id="heart-seal">❤️</div>
+                    
+                    <div class="envelope-back"></div>
                     
                     <div class="envelope-paper">
                         <div class="letter-content-box">
@@ -475,7 +479,12 @@
                         <button class="btn-close-letter" id="close-letter">Fechar Recado ✕</button>
                     </div>
 
-                    <div class="envelope-pocket"></div>
+                    <div class="envelope-front"></div>
+
+                    <div class="envelope-flap"></div>
+
+                    <div class="heart-seal" id="heart-seal">❤️</div>
+                    
                 </div>
             </div>
         </div>
@@ -483,9 +492,9 @@
     </div>
 
     <script>
-        /* --- Animação de Fundo (Balões de Coração) --- */
+        /* --- Fundo de Corações --- */
         const bgContainer = document.getElementById('floating-hearts-bg');
-        const heartSymbols = ['❤️', '💖', '💕', '💗'];
+        const heartSymbols = ['❤️'];
         
         for (let i = 0; i < 22; i++) {
             let heart = document.createElement('div');
@@ -498,7 +507,7 @@
             bgContainer.appendChild(heart);
         }
 
-        /* --- Lógica dos 5 Cliques para Curar o Coração --- */
+        /* --- Juntar Coração --- */
         let clicks = 0;
         const maxClicks = 5;
         const btnHeal = document.getElementById('btn-heal');
@@ -519,10 +528,10 @@
             if (clicks < maxClicks) {
                 clicks++;
                 updateHeartPosition();
-                if (clicks < maxClicks) {
-                    btnHeal.textContent = `Consertando... (${clicks}/${maxClicks})`;
-                } else {
-                    btnHeal.textContent = "Coração curado! ❤️";
+                
+                // Quando atingir o máximo de cliques, muda a tela
+                if (clicks === maxClicks) {
+                    btnHeal.textContent = "Coração inteiro! ❤️";
                     btnHeal.style.pointerEvents = 'none';
                     btnHeal.style.opacity = '0';
                     heartWrapper.classList.add('glow');
@@ -535,7 +544,7 @@
             }
         });
 
-        /* --- Lógica de Áudio e Notas Maiores (Efeito Balão do Disco) --- */
+        /* --- Áudio e Notas Saindo do Disco --- */
         const btnPlay = document.getElementById('btn-play');
         const photoDisc = document.getElementById('photo-disc');
         const discContainer = document.getElementById('photo-disc-container');
@@ -549,16 +558,11 @@
             note.classList.add('music-note');
             note.innerText = notes[Math.floor(Math.random() * notes.length)];
 
-            // Origem no centro absoluto do Disco
-            note.style.left = '50%';
-            note.style.top = '50%';
-
-            // Balanço realista de balão subindo
-            const sway = -70 + Math.random() * 140;
-            const rot = -40 + Math.random() * 80;
+            const sway = -60 + Math.random() * 120;
+            const rot = -30 + Math.random() * 60;
             note.style.setProperty('--sway', `${sway}px`);
             note.style.setProperty('--rot', `${rot}deg`);
-            note.style.animationDuration = `${2.5 + Math.random() * 1}s`;
+            note.style.animationDuration = `${2.5 + Math.random()}s`;
 
             discContainer.appendChild(note);
             setTimeout(() => { note.remove(); }, 3500);
@@ -576,59 +580,49 @@
                 btnPlay.textContent = '⏸';
                 btnPlay.classList.add('playing-icon');
                 noteInterval = setInterval(spawnMusicNoteBalloon, 450);
-                audio.play().catch(() => console.log("Modo de simulação ativo."));
+                audio.play().catch(() => console.log("Simulando áudio..."));
             }
             isPlaying = !isPlaying;
         });
 
-        /* --- TIMELINE ANTIBUG DA CARTA (ENTRA E SAI DO BOLSO PERFEITAMENTE) --- */
+        /* --- CONTROLE DO ENVELOPE --- */
         const triggerLetter = document.getElementById('trigger-letter');
         const letterModal = document.getElementById('letter-modal');
-        const envelopeWrapper = document.getElementById('envelope-wrapper-box');
+        const envelopeWrapper = document.getElementById('envelope-wrapper');
         const envelope = document.getElementById('envelope');
         const closeLetter = document.getElementById('close-letter');
 
-        // 1. Abre o Modal Geral
         triggerLetter.addEventListener('click', () => {
             letterModal.classList.add('active');
         });
 
-        // 2. Corografia sequencial para abrir
         function openEnvelopeSequence() {
-            if(envelope.classList.contains('flap-open')) return;
-
-            // Passo A: Envelope desce um pouco e a tampa levanta
+            if(envelopeWrapper.classList.contains('flap-open')) return;
             envelopeWrapper.classList.add('shift-down');
-            envelope.classList.add('flap-open');
+            envelopeWrapper.classList.add('flap-open');
 
-            // Passo B: O papel desliza de dentro do bolso para cima e se expande
             setTimeout(() => {
-                envelope.classList.add('paper-open');
-            }, 400); 
+                envelopeWrapper.classList.add('paper-open');
+            }, 450); 
         }
 
         envelope.addEventListener('click', (e) => {
-            if (e.target.id === 'close-letter' || envelope.classList.contains('paper-open')) return;
+            if (envelopeWrapper.classList.contains('paper-open')) return;
             openEnvelopeSequence();
         });
 
-        // 3. Engenharia Reversa Fluida para Fechar
         closeLetter.addEventListener('click', (e) => {
             e.stopPropagation(); 
+            envelopeWrapper.classList.remove('paper-open');
 
-            // Passo Reverso A: O papel entra completamente de volta no bolso
-            envelope.classList.remove('paper-open');
-
-            // Passo Reverso B: A tampa fecha e o envelope volta para o centro
             setTimeout(() => {
-                envelope.classList.remove('flap-open');
+                envelopeWrapper.classList.remove('flap-open');
                 envelopeWrapper.classList.remove('shift-down');
-            }, 550);
+            }, 600);
 
-            // Passo Reverso C: Apaga o modal inteiro da tela após tudo estar recolhido
             setTimeout(() => {
                 letterModal.classList.remove('active');
-            }, 1050);
+            }, 1150);
         });
     </script>
 </body>
